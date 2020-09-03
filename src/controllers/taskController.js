@@ -43,19 +43,56 @@ module.exports = {
 
         return res.json(resultCreated);
     },
-    async indexTask(req, res) {
+    async showTask(req, res) {
 
-        const [, token] = req.header('Authorization').split(' ');
+        const { id } = req.params;
 
-        const dados_user = jwt.decode(token);
+        const searchTask = await Tasks.findOne({ where: { id } });
 
-        if (!dados_user) {
+        return res.json(searchTask);
 
-            return res.status(500).json({ error: "Não autorizado" });
+    },
+    async updateTask(req, res) {
+
+        const {
+            alter_id,
+            alter_title,
+            alter_requester_name,
+            alter_requester_email,
+            alter_description,
+            alter_due_date,
+            alter_comment
+        } = req.body.fieldsTasksAlter;
+
+        const updateTask = await Tasks.update({
+            title: alter_title,
+            requester_name: alter_requester_name,
+            requester_email: alter_requester_email,
+            description: alter_description,
+            due_date: alter_due_date,
+            comment: alter_comment
+        }, {
+            where: {
+                id: alter_id
+            }
+        });
+
+        if (updateTask > 0) {
+
+            return res.json({ message: 'Sucesso' });
+
+        } else {
+
+            return res.status(500).json({ error: "Erro na exclusão" });
 
         }
 
-        const searchTask = await Tasks.findAll({ where: { user_id: dados_user.id }, order: [['index', 'ASC']] });
+    },
+    async indexTask(req, res) {
+
+        let user_id = req.userId;
+
+        const searchTask = await Tasks.findAll({ where: { user_id }, order: [['index', 'ASC']] });
 
         return res.json(searchTask);
     },
@@ -92,7 +129,7 @@ module.exports = {
                 stage,
                 index: {
                     [Op.gte]: index
-                } 
+                }
             }
         });
 
@@ -124,7 +161,7 @@ module.exports = {
                 stage,
                 index: {
                     [Op.gte]: index
-                } 
+                }
             }
         });
 

@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "producao": "node src/server.js"
+    "production": "node src/server.js"
   },
   "author": "Wenison Bandeira",
   "license": "ISC",
