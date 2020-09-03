@@ -18,12 +18,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      company_name: {
-        type: Sequelize.STRING,
-      },
-      telephone: {
-        type: Sequelize.STRING,
-      },
       password: {
         type: Sequelize.STRING,
         allowNull: false,

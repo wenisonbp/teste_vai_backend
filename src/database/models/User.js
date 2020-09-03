@@ -7,8 +7,6 @@ class User extends Model {
         super.init({
             name: DataTypes.STRING,
             email: DataTypes.STRING,
-            company_name: DataTypes.STRING,
-            telephone: DataTypes.STRING,
             password: DataTypes.STRING,
         }, {
             hooks: {

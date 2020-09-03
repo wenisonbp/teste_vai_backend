@@ -7,30 +7,40 @@ module.exports = {
 
     async storeUser(req, res) {
 
-        const { name, email, company_name, telephone, password } = req.body;
+        const { name, email, password, passwordConfirm } = req.body;
+
+        if (password !== passwordConfirm) {
+
+            return res.status(500).json({ error: "Senha não são iguais" });
+
+            
+        }
 
         const searchUser = await User.findOne({ where: { email } });
 
         if (searchUser) {
-            return res.json({ error: "Usuario já cadastrado" });
-        }
-
-        const searchCompany = await User.findOne({ where: { company_name } });
-
-        if (searchCompany) {
-            return res.json({ error: "Empresa já cadastrada" });
+            return res.status(500).json({ error: "Usuario já cadastrado" });
         }
 
         const resultCreated = await User.create({
-            name, email, company_name, telephone, password
+            name, email, password
         });
 
-        return res.json({
+        console.log(resultCreated)
+
+
+        const token = jwt.sign({
             id: resultCreated.id,
             name: resultCreated.name,
             email: resultCreated.email,
-            company_name: resultCreated.company_name
+        }, authConfig.secret, {
+            expiresIn: 86400
+        })
+
+        return res.json({
+            token
         });
+
     },
 
     async loginUser(req, res) {
@@ -53,7 +63,6 @@ module.exports = {
             id: searchUser.id,
             name: searchUser.name,
             email: searchUser.email,
-            company_name: searchUser.company_name
         }, authConfig.secret, {
             expiresIn: 86400
         })

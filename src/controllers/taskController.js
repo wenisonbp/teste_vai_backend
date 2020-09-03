@@ -22,7 +22,7 @@ module.exports = {
         } = req.body.fieldsTasks;
 
 
-        const searchMaxTask = await Tasks.max('index', { where: { user_id } });
+        const searchMaxTask = await Tasks.max('index', { where: { user_id, stage } });
 
         if (Number.isInteger(searchMaxTask)) {
             index = searchMaxTask + 1;
@@ -122,18 +122,40 @@ module.exports = {
 
     async reorderTaskStage(req, res) {
 
-        const { stage, index, id } = req.body;
+        const { stage, new_index, previous_index, id } = req.body;
 
-        const reorderTaskAll = await Tasks.increment({ index: +1 }, {
-            where: {
-                stage,
-                index: {
-                    [Op.gte]: index
+        const user_id = req.userId;
+
+        if (previous_index < new_index) {
+
+            const reorderTaskAll = await Tasks.increment({ index: - 1 }, {
+                where: {
+                    stage,
+                    user_id,
+                    index: {
+                        [Op.and]: {
+                            [Op.gt]: previous_index,
+                            [Op.lte]: new_index
+                        }
+                    }
                 }
-            }
-        });
+            });
 
-        const reorderTask = await Tasks.update({ index }, {
+        } else {
+
+            const reorderTaskAll = await Tasks.increment({ index: + 1 }, {
+                where: {
+                    stage,
+                    user_id,
+                    index: {
+                        [Op.gte]: new_index
+                    }
+                }
+            });
+
+        }
+
+        const reorderTask = await Tasks.update({ index: new_index }, {
             where: {
                 id
             }
@@ -154,13 +176,26 @@ module.exports = {
     async moveTaskStage(req, res) {
 
 
-        const { stage, index, id } = req.body;
+        const { stage, index, previous_index, previous_source, id  } = req.body;
+
+        const user_id = req.userId;
 
         const reorderTaskAll = await Tasks.increment({ index: +1 }, {
             where: {
                 stage,
+                user_id,
                 index: {
                     [Op.gte]: index
+                }
+            }
+        });
+
+        const reorderStagePrevious = await Tasks.increment({ index: -1 }, {
+            where: {
+                stage: previous_source,
+                user_id,
+                index: {
+                    [Op.gt]: previous_index
                 }
             }
         });
