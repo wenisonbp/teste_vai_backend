@@ -17,7 +17,7 @@ Teste Vai Bem - Backend
 
 - [x] Criação de cadastro
 - [x] Autenticação com JWT
-- [x] Drag e drop para gerenciamento das tarefas
+- [x] Configuração de rotas e controllers
 
 ## Notas
 
